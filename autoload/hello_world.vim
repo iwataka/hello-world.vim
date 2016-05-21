@@ -7,6 +7,9 @@ endif
 if !exists('g:hello_world_enable_shallow_clone')
   let g:hello_world_enable_shallow_clone = 1
 endif
+if !exists('g:hello_world_window_height')
+  let g:hello_world_window_height = 12
+endif
 
 let s:hello_world_url = 'https://github.com/leachim6/hello-world'
 
@@ -18,7 +21,11 @@ fu! hello_world#hello_world(lang)
   let head = 97 <= char2nr(head) && char2nr(head) <= 122 ? head : '#'
   let glob = s:validate_path(g:hello_world_dir).'/'.head.'/'.a:lang.'*'
   let files = split(expand(glob), '\n')
-  exe 'noautocmd pedit '.files[0]
+  exe g:hello_world_window_height.'split '.files[0]
+  setlocal readonly
+  setlocal nomodifiable
+  setlocal bufhidden=delete
+  wincmd p
 endfu
 
 fu! hello_world#update()
