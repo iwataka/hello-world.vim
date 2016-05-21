@@ -19,7 +19,7 @@ fu! hello_world#hello_world(lang)
   let head = tolower(a:lang[0])
   " Check if the head character is [a-z]
   let head = 97 <= char2nr(head) && char2nr(head) <= 122 ? head : '#'
-  let glob = s:validate_path(g:hello_world_dir).'/'.head.'/'.a:lang.'*'
+  let glob = s:validate_path(g:hello_world_dir).'/'.head.'/'.a:lang.'.*'
   let files = split(expand(glob), '\n')
   exe g:hello_world_window_height.'split '.files[0]
   setlocal readonly
