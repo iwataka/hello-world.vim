@@ -25,7 +25,7 @@ fu! hello_world#hello_world(lang)
   setlocal readonly
   setlocal nomodifiable
   setlocal bufhidden=delete
-  wincmd p
+  nnoremap q :<c-u>quit<cr>
 endfu
 
 fu! hello_world#update()
