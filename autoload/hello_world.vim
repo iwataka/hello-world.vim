@@ -54,12 +54,17 @@ fu! hello_world#list()
   " nr2char(97) == 'a'
   " nr2char(122) == 'z'
   let dirs = ['#'] + map(range(97, 122), 'nr2char(v:val)')
-  let result = []
+
+  " Use dictionary to remove duplicated candidates
+  let result = {}
   for dir in dirs
     let glob = dir.'/*'
-    call extend(result, s:list(glob))
+    let list = s:list(glob)
+    for item in list
+      let result[item] = 1
+    endfor
   endfor
-  return result
+  return keys(result)
 endfu
 
 fu! s:list(glob)
