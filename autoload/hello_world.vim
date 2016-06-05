@@ -85,7 +85,7 @@ fu! s:cd_or_lcd(dir)
 endfu
 
 fu! s:validate_path(path)
-  return substitute(fnamemodify(a:path, ':p'), '\v/+$', '', '')
+  return substitute(fnamemodify(a:path, ':p'), '\v[\\/]+$', '', '')
 endfu
 
 fu! s:assure_hello_world_collection()
