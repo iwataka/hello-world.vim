@@ -5,4 +5,4 @@ let g:loaded_hello_world = 1
 
 com! -nargs=1 -complete=customlist,hello_world#complete HelloWorld
       \ call hello_world#hello_world(<f-args>)
-com! HelloWorldUpdate call hello_world#update()
+com! -nargs=0 HelloWorldUpdate call hello_world#update(v:false)

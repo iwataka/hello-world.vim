@@ -14,35 +14,26 @@ endif
 let s:hello_world_url = 'https://github.com/leachim6/hello-world'
 
 fu! hello_world#hello_world(lang)
-  call s:assure_hello_world_collection()
+  call hello_world#update(v:true)
 
   let head = tolower(a:lang[0])
   " Check if the head character is [a-z]
   let head = 97 <= char2nr(head) && char2nr(head) <= 122 ? head : '#'
-  let glob = s:validate_path(g:hello_world_dir).'/'.head.'/'.a:lang.'.*'
+  let glob = printf('%s/%s/%s.*', s:validate_path(g:hello_world_dir), head, a:lang)
   let files = split(expand(glob), '\n')
-  exe g:hello_world_window_height.'split '.files[0]
+  exe printf('%dsplit %s', g:hello_world_window_height, files[0])
   setlocal readonly
   setlocal nomodifiable
   setlocal bufhidden=delete
   nnoremap q :<c-u>quit<cr>
 endfu
 
-fu! hello_world#update()
+fu! hello_world#update(install_only)
   let dir = s:validate_path(g:hello_world_dir)
   if isdirectory(dir)
-    let cwd = getcwd()
-    " There are some ways to execute Git commands outside the repository, but
-    " they depend on the version and version detection is not easy.
-    " See http://stackoverflow.com/questions/5083224/git-pull-while-not-in-a-git-directory and others
-    " git --git-dir=~/foo/.git --work-tree=~/foo status
-    " git -C ~/foo status (since Git 2.3.4, March 2015)
-    call s:cd_or_lcd(dir)
-    call system('git pull origin master')
-    call s:cd_or_lcd(cwd)
-  else
-    let cmd = 'git clone '.s:hello_world_url
-    call system(cmd.' '.dir)
+    call system(printf('git -C %s pull origin master', dir))
+  elseif !a:install_only
+    call system(printf('git clone %s %s', s:hello_world_url, dir))
   endif
 endfu
 
@@ -51,6 +42,8 @@ fu! hello_world#complete(A, L, P)
 endfu
 
 fu! hello_world#list()
+  call hello_world#update(v:true)
+
   " nr2char(97) == 'a'
   " nr2char(122) == 'z'
   let dirs = ['#'] + map(range(97, 122), 'nr2char(v:val)')
@@ -58,8 +51,7 @@ fu! hello_world#list()
   " Use dictionary to remove duplicated candidates
   let result = {}
   for dir in dirs
-    let glob = dir.'/*'
-    let list = s:list(glob)
+    let list = s:list(printf('%s/*', dir))
     for item in list
       let result[item] = 1
     endfor
@@ -68,32 +60,14 @@ fu! hello_world#list()
 endfu
 
 fu! s:list(glob)
-  call s:assure_hello_world_collection()
-
   let dir = s:validate_path(g:hello_world_dir)
   let list = split(globpath(dir, a:glob), '\n')
   call map(list, 'fnamemodify(v:val, ":t:r")')
   return list
 endfu
 
-fu! s:cd_or_lcd(dir)
-  if haslocaldir()
-    exe 'lcd '.a:dir
-  else
-    exe 'cd '.a:dir
-  endif
-endfu
-
 fu! s:validate_path(path)
   return substitute(fnamemodify(a:path, ':p'), '\v[\\/]+$', '', '')
-endfu
-
-fu! s:assure_hello_world_collection()
-  let dir = s:validate_path(g:hello_world_dir)
-  " Clone the hello-world collection if not exists
-  if !isdirectory(dir)
-    call hello_world#update()
-  endif
 endfu
 
 let &cpo = s:save_cpo
